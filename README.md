@@ -4,6 +4,22 @@ This module reads in a [b.energy](https://benergy.utilmate.com/) utility usage f
 - The expected bill from the bill to date averaged out to 30 days
 - The 7 day average exrapolated to the a 30 day average
 
+## Build
+```
+git clone https://github.com/adreasnow/bEenergyBillCalculator.git
+cd bEenergyBillCalculator
+go build bEenergyBillCalculator.go
+```
+You could alternatively install it to your `GOPATH` with
+```
+go install bEenergyBillCalculator.go
+```
+
+## Usage
+```
+./bEenergyBillCalculator <CSV Files> [optional flags]
+```
+
 These are soft coded with my own usage, however they can be overriden with the following flags:
 
 ```
