@@ -161,6 +161,7 @@ func main() {
 	flag.Parse()
 
 	var err error
+	fmt.Println("Reading from files:")
 	for _, arg := range flag.Args() {
 		fmt.Println(arg)
 		month, err = ImportCSV(arg, month)
@@ -169,6 +170,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
+	fmt.Println("\n")
 
 	electricity, water, gas, days := CalculateCost(month)
 	electricity7d, water7d, gas7d, _ := CalculateCostDays(month, 7)
@@ -177,13 +179,13 @@ func main() {
 	_30dayTotal := electricity._30DayAvg(days) + water._30DayAvg(days) + gas._30DayAvg(days)
 	_30dayTotal7d := electricity7d._30DayAvg(7) + water7d._30DayAvg(7) + gas7d._30DayAvg(7)
 
-	fmt.Printf("-----------------------------------------------\n")
-	fmt.Printf("Utility:\tCost\t avg\t 7 day avg\n")
-	fmt.Printf("-----------------------------------------------\n")
-	fmt.Printf("Electricity:\t$%3.2f\t$%3.2f\t  $%3.2f\n", electricity, electricity._30DayAvg(days), electricity7d._30DayAvg(7))
-	fmt.Printf("Water:\t\t$%3.2f\t$%3.2f\t  $%3.2f\n", water, water._30DayAvg(days), water7d._30DayAvg(7))
-	fmt.Printf("Gas:\t\t$%3.2f\t$%3.2f\t  $%3.2f\n", gas, gas._30DayAvg(days), gas7d._30DayAvg(7))
-	fmt.Printf("-----------------------------------------------\n")
-	fmt.Printf("Total: \t\t$%3.2f\t$%3.2f\t  $%3.2f\n", total, _30dayTotal, _30dayTotal7d)
-
+	fmt.Printf("---------------------------------------------------\n")
+	fmt.Printf("Utility:\tCost\t 30 day avg\t 7 day avg\n")
+	fmt.Printf("---------------------------------------------------\n")
+	fmt.Printf("Electricity:\t$%3.2f\t   $%3.2f\t  $%3.2f\n", electricity, electricity._30DayAvg(days), electricity7d._30DayAvg(7))
+	fmt.Printf("Water:\t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", water, water._30DayAvg(days), water7d._30DayAvg(7))
+	fmt.Printf("Gas:\t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", gas, gas._30DayAvg(days), gas7d._30DayAvg(7))
+	fmt.Printf("---------------------------------------------------\n")
+	fmt.Printf("Total: \t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", total, _30dayTotal, _30dayTotal7d)
+	fmt.Printf("---------------------------------------------------\n")
 }
