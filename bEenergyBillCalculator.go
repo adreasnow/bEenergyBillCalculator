@@ -149,6 +149,9 @@ var costs Costs
 var dayList []string
 
 func main() {
+	fmt.Println("-------------------------------")
+	fmt.Println("b.energy Bill Calculator Tool")
+	fmt.Println("-------------------------------\n")
 	costs = Costs{}
 	dayList = make([]string, 0)
 	month := make(Month, 0)
@@ -170,7 +173,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
-	fmt.Println("\n")
+	fmt.Printf("\n")
 
 	electricity, water, gas, days := CalculateCost(month)
 	electricity7d, water7d, gas7d, _ := CalculateCostDays(month, 7)
