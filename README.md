@@ -7,11 +7,19 @@ This module reads in a [b.energy](https://benergy.utilmate.com/) utility usage f
 These are soft coded with my own usage, however they can be overriden with the following flags:
 
 ```
-    -er <value>   -  [0.30894]   - Electricty rate in $/KWh           
-    -wr <value>   -  [18.15]     - Water rate in $/KL
-    
-    -gs <value>   -  [0.286]     - Gas supply charge in $/day
-    -es <value>   -  [1.08661]   - Electricity supply charge in $/day
-    -ws <value>   -  [0.319]     - Water supply charge in $/day
+-er <value>  [0.30894]   - Electricty rate in $/KWh           
+-wr <value>  [18.15]     - Water rate in $/KL
+
+-gs <value>  [0.286]     - Gas supply charge in $/day
+-es <value>  [1.08661]   - Electricity supply charge in $/day
+-ws <value>  [0.319]     - Water supply charge in $/day
 ```
+Since this is go, the flags can be parsed in any of the following formats:
+```bash
+-flag <value>
+--flag <value>
+-flag=<value>
+--flag=<value>
+```
+
 My building has a single daily gas usage fee, since the only gas lines that are hooked up are for the stove.
