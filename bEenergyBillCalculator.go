@@ -149,9 +149,9 @@ var costs Costs
 var dayList []string
 
 func main() {
-	fmt.Println("-------------------------------")
+
+	fmt.Printf("--------------------------------------------\n")
 	fmt.Println("b.energy Bill Calculator Tool")
-	fmt.Println("-------------------------------\n")
 	costs = Costs{}
 	dayList = make([]string, 0)
 	month := make(Month, 0)
@@ -163,6 +163,13 @@ func main() {
 	costs.water_supply = *flag.Float64("ws", 0.319, "ws")
 	flag.Parse()
 
+	fmt.Printf("--------------------------------------------\n")
+	fmt.Printf("Utility\t\t Supply\t\t  Rate\n")
+	fmt.Printf("--------------------------------------------\n")
+	fmt.Printf("Electricity\t$%3.5f/day\t$%0.5f/KWh\n", costs.electricity_supply, costs.electricity_rate)
+	fmt.Printf("Water\t\t$%3.3f/day\t$%2.2f/KL\n", costs.water_supply, costs.water_rate)
+	fmt.Printf("Gas\t\t$%3.3f/day\t\n", costs.gas_supply)
+	fmt.Printf("--------------------------------------------\n\n")
 	var err error
 	fmt.Println("Reading from files:")
 	for _, arg := range flag.Args() {
