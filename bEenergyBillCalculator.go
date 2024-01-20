@@ -152,16 +152,22 @@ func main() {
 
 	fmt.Printf("--------------------------------------------\n")
 	fmt.Println("b.energy Bill Calculator Tool")
-	costs = Costs{}
+
 	dayList = make([]string, 0)
 	month := make(Month, 0)
 
-	costs.electricity_rate = *flag.Float64("er", 0.30894, "er")
-	costs.water_rate = *flag.Float64("wr", 18.15, "wr")
-	costs.gas_supply = *flag.Float64("gs", 0.286, "gs")
-	costs.electricity_supply = *flag.Float64("es", 1.08661, "es")
-	costs.water_supply = *flag.Float64("ws", 0.319, "ws")
+	electricity_rate := flag.Float64("er", 0.30894, "Electricity Rate")
+	water_rate := flag.Float64("wr", 18.15, "Water Rate")
+	gas_supply := flag.Float64("gs", 0.286, "Gas supply")
+	electricity_supply := flag.Float64("es", 1.08661, "Electricity Supply")
+	water_supply := flag.Float64("ws", 0.319, "Water Supply")
 	flag.Parse()
+
+	costs = Costs{electricity_rate: *electricity_rate,
+		water_rate:         *water_rate,
+		gas_supply:         *gas_supply,
+		electricity_supply: *electricity_supply,
+		water_supply:       *water_supply}
 
 	fmt.Printf("--------------------------------------------\n")
 	fmt.Printf("Utility\t\t Supply\t\t  Rate\n")
@@ -173,7 +179,7 @@ func main() {
 	var err error
 	fmt.Println("Reading from files:")
 	for _, arg := range flag.Args() {
-		fmt.Println(arg)
+		fmt.Printf("- %s\n", arg)
 		month, err = ImportCSV(arg, month)
 		if err != nil {
 			fmt.Println(err.Error())
