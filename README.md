@@ -17,7 +17,7 @@ go install bEenergyBillCalculator.go
 
 ## Usage
 ```
-./bEenergyBillCalculator <CSV Files> [optional flags]
+./bEenergyBillCalculator [optional flags] <CSV Files>
 ```
 
 These are soft coded with my own usage, however they can be overriden with the following flags:
