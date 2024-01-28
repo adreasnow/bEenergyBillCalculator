@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -24,7 +25,12 @@ type Costs struct {
 }
 
 type Month map[string]Day
-type Bill float64
+
+type Bill struct {
+	cost   float64
+	supply float64
+	days   int
+}
 
 func ReadStrings(fileName string) ([]string, error) {
 	file, err := os.Open(fileName)
@@ -74,75 +80,63 @@ func ImportCSV(csv string, month Month) (Month, error) {
 
 				if strings.Contains(line, "Hot Water,") {
 					day.water = quantity
-					if day.water > 0 {
-						day.gas = 1
-					}
+					day.gas = 1
 
 				} else if strings.Contains(line, "Anytime Usage,") {
 					day.electricity = quantity
-					if day.water > 0 {
-						day.gas = 1
-					}
 				}
 				month[key] = day
-				dayList = append(dayList, key)
+				if !slices.Contains(dayList, key) {
+					dayList = append(dayList, key)
+				}
+
 			}
 		}
 	}
 	return month, nil
 }
 
-func CalculateCost(month Month) (Bill, Bill, Bill, int) {
+func CalculateCost(month Month, days int) (Bill, Bill, Bill) {
 	totalElec := 0.0
 	totalWater := 0.0
-	totalGas := 0.0
-	days := 0
+	supplyElec := 0.0
+	supplyWater := 0.0
+	supplyGas := 0.0
 
-	for _, day := range month {
-		if day.electricity != 0.0 {
-			totalElec += (day.electricity * costs.electricity_rate) + costs.electricity_supply
-		}
-		if day.water != 0.0 {
-			totalWater += (day.water * costs.water_rate) + costs.water_supply
-		}
-		if day.gas != 0 {
-			totalGas += (float64(day.gas) * costs.gas_supply)
-		}
-		if day.gas == 1 {
-			days++
-		}
+	dayCounter := 0
 
-	}
-	return Bill(totalElec), Bill(totalWater), Bill(totalGas), days
-}
-
-func CalculateCostDays(month Month, days int) (Bill, Bill, Bill, int) {
-	totalElec := 0.0
-	totalWater := 0.0
-	totalGas := 0.0
 	var day Day
 	var dayIndex int
 
-	for i := 0; i <= days; i++ {
-		dayIndex = (len(dayList) - 1 - days) + i
-		day = month[dayList[dayIndex]]
-		if day.electricity != 0.0 {
-			totalElec += (day.electricity * costs.electricity_rate) + costs.electricity_supply
-		}
-		if day.water != 0.0 {
-			totalWater += (day.water * costs.water_rate) + costs.water_supply
-		}
-		if day.gas != 0 {
-			totalGas += (float64(day.gas) * costs.gas_supply)
-		}
+	if days == 0 {
+		days = len(dayList)
 	}
 
-	return Bill(totalElec), Bill(totalWater), Bill(totalGas), days
+	for i := 0; i <= days-1; i++ {
+		dayIndex = (len(dayList) - days) + i
+		day = month[dayList[dayIndex]]
+		totalElec += (day.electricity * costs.electricity_rate)
+		supplyElec += costs.electricity_supply
+		totalWater += (day.water * costs.water_rate)
+		supplyWater += costs.water_supply
+		supplyGas += (float64(day.gas) * costs.gas_supply)
+		dayCounter++
+
+	}
+	return Bill{cost: totalElec, supply: supplyElec, days: dayCounter},
+		Bill{cost: totalWater, supply: supplyWater, days: dayCounter},
+		Bill{cost: 0.0, supply: supplyGas, days: dayCounter}
 }
 
-func (b Bill) _30DayAvg(d int) float64 {
+func (b Bill) Avg(d int) float64 {
+	oneDayCost := (b.cost / float64(b.days))
+	oneDaySupply := (b.supply / float64(b.days))
+	fmt.Println(oneDaySupply)
+	return (oneDayCost + oneDaySupply) * float64(d)
+}
 
-	return (float64(b) / float64(d)) * 30.0
+func (b Bill) Total() float64 {
+	return b.cost + b.supply
 }
 
 var costs Costs
@@ -188,20 +182,20 @@ func main() {
 	}
 	fmt.Printf("\n")
 
-	electricity, water, gas, days := CalculateCost(month)
-	electricity7d, water7d, gas7d, _ := CalculateCostDays(month, 7)
+	electricity, water, gas := CalculateCost(month, 0)
+	electricity7d, water7d, gas7d := CalculateCost(month, 7)
 
-	total := electricity + water + gas
-	_30dayTotal := electricity._30DayAvg(days) + water._30DayAvg(days) + gas._30DayAvg(days)
-	_30dayTotal7d := electricity7d._30DayAvg(7) + water7d._30DayAvg(7) + gas7d._30DayAvg(7)
+	total := electricity.Total() + water.Total() + gas.Total()
+	total30 := electricity.Avg(30) + water.Avg(30) + gas.Avg(30)
+	total7 := electricity7d.Avg(30) + water7d.Avg(30) + gas7d.Avg(30)
 
 	fmt.Printf("---------------------------------------------------\n")
-	fmt.Printf("Utility:\tCost\t 30 day avg\t 7 day avg\n")
+	fmt.Printf("Utility:\tCost\t 30 day avg\t 30 day avg (last 7 days)\n")
 	fmt.Printf("---------------------------------------------------\n")
-	fmt.Printf("Electricity:\t$%3.2f\t   $%3.2f\t  $%3.2f\n", electricity, electricity._30DayAvg(days), electricity7d._30DayAvg(7))
-	fmt.Printf("Water:\t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", water, water._30DayAvg(days), water7d._30DayAvg(7))
-	fmt.Printf("Gas:\t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", gas, gas._30DayAvg(days), gas7d._30DayAvg(7))
+	fmt.Printf("Electricity:\t$%3.2f\t   $%3.2f\t  $%3.2f\n", electricity.Total(), electricity.Avg(30), electricity7d.Avg(30))
+	fmt.Printf("Water:\t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", water.Total(), water.Avg(30), water7d.Avg(30))
+	fmt.Printf("Gas:\t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", gas.Total(), gas.Avg(30), gas7d.Avg(30))
 	fmt.Printf("---------------------------------------------------\n")
-	fmt.Printf("Total: \t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", total, _30dayTotal, _30dayTotal7d)
+	fmt.Printf("Total: \t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", total, total30, total7)
 	fmt.Printf("---------------------------------------------------\n")
 }
