@@ -131,7 +131,6 @@ func CalculateCost(month Month, days int) (Bill, Bill, Bill) {
 func (b Bill) Avg(d int) float64 {
 	oneDayCost := (b.cost / float64(b.days))
 	oneDaySupply := (b.supply / float64(b.days))
-	fmt.Println(oneDaySupply)
 	return (oneDayCost + oneDaySupply) * float64(d)
 }
 
@@ -150,11 +149,11 @@ func main() {
 	dayList = make([]string, 0)
 	month := make(Month, 0)
 
-	electricity_rate := flag.Float64("er", 0.30894, "Electricity Rate")
-	water_rate := flag.Float64("wr", 18.15, "Water Rate")
-	gas_supply := flag.Float64("gs", 0.286, "Gas supply")
-	electricity_supply := flag.Float64("es", 1.08661, "Electricity Supply")
-	water_supply := flag.Float64("ws", 0.319, "Water Supply")
+	electricity_rate := flag.Float64("er", 0.280855, "Electricity Rate")
+	water_rate := flag.Float64("wr", 16.50, "Water Rate")
+	gas_supply := flag.Float64("gs", 0.260, "Gas supply")
+	electricity_supply := flag.Float64("es", 0.987827, "Electricity Supply")
+	water_supply := flag.Float64("ws", 0.290, "Water Supply")
 	flag.Parse()
 
 	costs = Costs{electricity_rate: *electricity_rate,
@@ -183,19 +182,20 @@ func main() {
 	fmt.Printf("\n")
 
 	electricity, water, gas := CalculateCost(month, 0)
+	electricity35d, water35d, gas35d := CalculateCost(month, 35)
 	electricity7d, water7d, gas7d := CalculateCost(month, 7)
 
 	total := electricity.Total() + water.Total() + gas.Total()
-	total30 := electricity.Avg(30) + water.Avg(30) + gas.Avg(30)
-	total7 := electricity7d.Avg(30) + water7d.Avg(30) + gas7d.Avg(30)
+	total35 := electricity35d.Avg(35) + water35d.Avg(35) + gas35d.Avg(35)
+	total7 := electricity7d.Avg(35) + water7d.Avg(35) + gas7d.Avg(35)
 
 	fmt.Printf("---------------------------------------------------\n")
-	fmt.Printf("Utility:\tCost\t 30 day avg\t 30 day avg (last 7 days)\n")
+	fmt.Printf("Utility:\tCost\t 35 day avg\t 35 day avg (last 7 days)\n")
 	fmt.Printf("---------------------------------------------------\n")
-	fmt.Printf("Electricity:\t$%3.2f\t   $%3.2f\t  $%3.2f\n", electricity.Total(), electricity.Avg(30), electricity7d.Avg(30))
-	fmt.Printf("Water:\t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", water.Total(), water.Avg(30), water7d.Avg(30))
-	fmt.Printf("Gas:\t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", gas.Total(), gas.Avg(30), gas7d.Avg(30))
+	fmt.Printf("Electricity:\t$%3.2f\t   $%3.2f\t  $%3.2f\n", electricity.Total(), electricity35d.Avg(35), electricity7d.Avg(35))
+	fmt.Printf("Water:\t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", water.Total(), water35d.Avg(35), water7d.Avg(35))
+	fmt.Printf("Gas:\t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", gas.Total(), gas35d.Avg(35), gas7d.Avg(35))
 	fmt.Printf("---------------------------------------------------\n")
-	fmt.Printf("Total: \t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", total, total30, total7)
+	fmt.Printf("Total: \t\t$%3.2f\t   $%3.2f\t  $%3.2f\n", total, total35, total7)
 	fmt.Printf("---------------------------------------------------\n")
 }
